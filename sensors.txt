@@ -1,1 +1,3 @@
 for i in /sys/class/hwmon/hwmon*; do printf '%s:\n\n' "$(basename "$i")"; ( cd "$i"; find $(ls) -maxdepth 0 -type f -perm /444 -printf '%f:\n\t' -exec sh -c 'printf "%s\n" "$(cat "$1")"' -- {} \; ; ); printf '\n\n'; done
+# looped
+while true; do clear; for i in /sys/class/hwmon/hwmon*; do printf '%s:\n\n' "$(basename "$i")"; ( cd "$i"; find $(ls) -maxdepth 0 -type f -perm /444 -printf '%f:\n\t' -exec sh -c 'printf "%s\n" "$(cat "$1")"' -- {} \; ; ); printf '\n\n'; done; sleep 0.5; done
