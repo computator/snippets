@@ -1,0 +1,11 @@
+# Check server latencies
+curl -s 'https://serverlist.piaservers.net/vpninfo/servers/v4' | head -n 1 | jq -r '.regions[] | .servers.meta[0].ip' | xargs -n 1 -I {} sh -c 't=$(curl -so /dev/null --connect-timeout 0.05 --write-out "%{time_connect}" http://{}:443) && printf "%s %s\\n" {} $t' -- | sort | join - <(curl -s 'https://serverlist.piaservers.net/vpninfo/servers/v4' | head -n 1 | jq -r '.regions[] | .servers.meta[0].ip+" "+.id+" "+.name+" "+(.geo|tostring)' | sort) | sort -k 2
+
+# Get Region Info
+curl -s 'https://serverlist.piaservers.net/vpninfo/servers/v4' | head -n 1 | jq --arg REGION_ID france -r '.regions[] | select(.id==$REGION_ID)'
+
+# Get Token
+curl -s -u 'user:pass' 'https://privateinternetaccess.com/gtoken/generateToken'
+
+# Add WG Key
+curl -sG --connect-to 'hostname::ip:' --insecure --data-urlencode 'pt=TOKEN' --data-urlencode 'pubkey=KEY' 'https://hostname:1337/addKey'
