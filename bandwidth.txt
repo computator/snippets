@@ -1,0 +1,2 @@
+ifstat -nt 1/5 | awk -Wi 'NR<=2 { gsub("KB", "MB"); print }; NR > 2 { printf "%s  %8.2f  %8.2f\n", $1, $2/1024, $3/1024 }'
+
