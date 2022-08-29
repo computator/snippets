@@ -1,0 +1,2 @@
+# mysql/mariadb slow log host filtering
+sed -n ':r ;/^# Time: / { N; /@ *\[1\.2\.3\.4\]/ {p; :l; n; /^# Time: /!{p;bl};br}}' database-slow.log
