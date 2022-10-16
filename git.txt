@@ -1,0 +1,2 @@
+# log commits on day of week
+git log --all --author='author' --format='%h %ad' | awk '$2 == "Sun" { print $1 }' | xargs git show -q --date='format:%Y #%U %b %d' --format='%h %ad %s'
