@@ -1,0 +1,2 @@
+# generate keypair
+ssh-keygen -q -f /dev/stdout -N '' -C '' -t ed25519 <<<y 2> /dev/null | sed -z 's/[^-]*-/-/' | tee >(ssh-keygen -yf /dev/stdin)
