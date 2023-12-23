@@ -1,4 +1,7 @@
-# get liked tracks and split to files
-curl -sS -H @tidal_auth.hdr 'https://listen.tidal.com/v1/users/${USER_ID}/favorites/ids' | jq '.TRACK | join(",")' -r | split -d , -l 400
+# get liked tracks (unordered) and split to files
+curl -sS -H @tidal_auth.hdr 'https://listen.tidal.com/v1/users/${USER_ID}/favorites/ids' | jq '.TRACK | join(",")' -r | split -t , -l 400
+# get liked tracks (by date) and split to files
+curl -sS -H @tidal_auth.hdr 'https://listen.tidal.com/v1/users/${USER_ID}/favorites/tracks?offset=0&limit=10000&order=DATE&orderDirection=ASC&countryCode=US' | jq '[.items[].item.id] | join(",")' -r | split -t , -l 400
+
 # add split tracks to a playlist
 for i in x*; do curl -i -H @tidal_auth.hdr -H "If-None-Match: $(curl -sSI -H @tidal_auth.hdr 'https://listen.tidal.com/v1/playlists/PLAYLIST_UUID?countryCode=US' | awk '/^etag:/ { print $2 }' | tr -d '\r')" -d onArtifactNotFound=SKIP -d onDupes=SKIP --data-urlencode trackIds@$i 'https://listen.tidal.com/v1/playlists/PLAYLIST_UUID/items'; done
