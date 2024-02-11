@@ -1,0 +1,2 @@
+# DNG converter
+podman run --rm -i -v .:/images --tz local ghcr.io/computator/dng-converter:latest -c -p0 -mp -- *.CR3
