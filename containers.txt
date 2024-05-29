@@ -1,0 +1,3 @@
+# list container and it's parent layer including build cache (but no cache for previous stages)
+podman image inspect --format '{{ range .RepoTags }}{{ . }}\n{{ else }}{{ .ID }}{{ end }}' \
+	$(p="test" ids=; while [ -n "$p" ]; do ids="$ids $p"; p=$(podman image inspect -f '{{ .Parent }}' "$p"); done; echo $ids)
