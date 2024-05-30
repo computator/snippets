@@ -6,3 +6,9 @@
 
 # convert list of image references to list of tags (all matching) or short ids if no tag (xargs optional)
 podman image inspect --format '{{ range .RepoTags }}{{ . }}\n{{ else }}{{ .ID }}{{ end }}' $TAGS | xargs
+
+# list potential build cache layers (dangling images that have labeled root ancestors)
+for img in $(podman image list -q --filter dangling=true); do
+	root=$( i="$img" t="$i"; while [ -n "$i" ]; do t="$i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$t"; )
+	[ "$(podman image inspect -f '{{ len .RepoTags }}' "$root")" -gt 0 ] && echo "$img"
+done
