@@ -1,3 +1,8 @@
-# list container and it's parent layer including build cache (but no cache for previous stages)
-podman image inspect --format '{{ range .RepoTags }}{{ . }}\n{{ else }}{{ .ID }}{{ end }}' \
-	$(p="test" ids=; while [ -n "$p" ]; do ids="$ids $p"; p=$(podman image inspect -f '{{ .Parent }}' "$p"); done; echo $ids)
+# list an image and it's intermediate layer ids
+( i="test" ids=; while [ -n "$i" ]; do ids="$ids $i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$ids"; )
+
+# list an image's root ancestor
+( i="test" t="$i"; while [ -n "$i" ]; do t="$i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$t"; )
+
+# convert list of image references to list of tags (all matching) or short ids if no tag (xargs optional)
+podman image inspect --format '{{ range .RepoTags }}{{ . }}\n{{ else }}{{ .ID }}{{ end }}' $TAGS | xargs
