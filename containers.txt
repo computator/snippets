@@ -12,3 +12,7 @@ for img in $(podman image list -q --filter dangling=true) $(podman image list -q
 	root=$( i="$img" t="$i"; while [ -n "$i" ]; do t="$i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$t"; )
 	[ "$(podman image inspect -f '{{ len .RepoTags }}' "$root")" -gt 0 ] && echo "$img"
 done
+
+# list images in tree format
+podman image list --all --format '{{.Repository}},{{.Tag}},{{.ID}},{{printf "%.12s" .ParentId}},{{.Created}},{{.Size}}' \
+	| column -s , --tree-id 3 --tree-parent 4 --tree 3 -N 'REPOSITORY,TAG,IMAGE ID,PARENT,CREATED,SIZE' -H PARENT
