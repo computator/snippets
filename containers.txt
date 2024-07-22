@@ -4,14 +4,33 @@
 # list an image's root ancestor id
 ( i="test" t="$i"; while [ -n "$i" ]; do t="$i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$t"; )
 
+# list an image's first labeled or root ancestor id
+( i="test" t="$i"; i="$(podman image inspect -f '{{ .Parent }}' "$i")"; while [ -n "$i" ]; do t="$i"; [ "$(podman image inspect -f '{{ len .RepoTags }}' "$i")" -gt 0 ] && i= || i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$t"; )
+
+# list an image's first labeled ancestor id
+( i="test"; i="$(podman image inspect -f '{{ .Parent }}' "$i")"; while [ -n "$i" ]; do if [ "$(podman image inspect -f '{{ len .RepoTags }}' "$i")" -gt 0 ]; then echo "$i"; break; else i="$(podman image inspect -f '{{ .Parent }}' "$i")"; fi; done; )
+
 # convert list of image references to list of tags (all matching) or short ids if no tag (xargs optional)
 podman image inspect --format '{{ range .RepoTags }}{{ . }}\n{{ else }}{{ .ID }}{{ end }}' $TAGS | xargs
 
-# list potential build cache layers: dangling or intermediate images with root ancestors that are still labeled (I.E. not untagged/replaced)
-for img in $(podman image list -q --filter dangling=true) $(podman image list -q --filter intermediate=true); do
-	root=$( i="$img" t="$i"; while [ -n "$i" ]; do t="$i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$t"; )
-	[ "$(podman image inspect -f '{{ len .RepoTags }}' "$root")" -gt 0 ] && echo "$img"
+# list latest potential build cache images: dangling images that are the most
+# recent ancestor of images that is still labeled (I.E. not untagged/replaced)
+seen=" "
+for img in $(podman image list -q --filter dangling=true); do
+	l_ancest=$( i="$img"; i="$(podman image inspect -f '{{ .Parent }}' "$i")"; while [ -n "$i" ]; do if [ "$(podman image inspect -f '{{ len .RepoTags }}' "$i")" -gt 0 ]; then echo "$i"; break; else i="$(podman image inspect -f '{{ .Parent }}' "$i")"; fi; done; )
+	[ -z "$l_ancest" ] && continue
+	case "$seen" in (*" $l_ancest "*) continue ;; esac
+	seen="$seen$l_ancest "
+	echo "$img"
 done
+
+# list all potential build cache layers: dangling images with ancestors that are still
+# labeled (I.E. not untagged/replaced) as well as their intermediate images
+for img in $(podman image list -q --filter dangling=true); do
+	[ -n "$( i="$img"; i="$(podman image inspect -f '{{ .Parent }}' "$i")"; while [ -n "$i" ]; do if [ "$(podman image inspect -f '{{ len .RepoTags }}' "$i")" -gt 0 ]; then echo "$i"; break; else i="$(podman image inspect -f '{{ .Parent }}' "$i")"; fi; done; )" ] \
+		|| continue
+	echo "$( i="$img" ids=; while [ -n "$i" ]; do ids="$ids $i" i="$(podman image inspect -f '{{ .Parent }}' "$i")"; done; echo "$ids"; )"
+done | xargs -n 1 | sort -u
 
 # list images in tree format
 podman image list --all --format '{{.Repository}},{{.Tag}},{{.ID}},{{printf "%.12s" .ParentId}},{{.Created}},{{.Size}}' \
