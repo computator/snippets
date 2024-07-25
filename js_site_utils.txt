@@ -1,0 +1,2 @@
+// IMDB sort list by episodes
+document.querySelectorAll('ul.ipc-metadata-list').forEach(list => list.append(...[...list.children].map(n => { let t = [...n.querySelectorAll('.dli-title-metadata .dli-title-metadata-item')].find(m => m.textContent.endsWith(' eps')); n.dataset.eps = t ? parseInt(t.textContent.split(' ', 2)[0]) : 0; return n; }).sort((a, b) => a.dataset.eps - b.dataset.eps)))
