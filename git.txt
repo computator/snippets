@@ -4,7 +4,7 @@ git log --all --author='author' --format='%h %ad' | awk '$2 == "Sun" { print $1 
 # find repos with dirty working directories
 find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test -z "$(git -C "$1" status --porcelain)" || echo "$1"' --
 
-# find repos with a current branch ahead of it's upstream
-find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test "$(git -C "$1" rev-list --count @..@{u})" -gt 0 && echo "$1"' --
 # find repos with a current branch behind it's upstream
+find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test "$(git -C "$1" rev-list --count @..@{u})" -gt 0 && echo "$1"' --
+# find repos with a current branch ahead of it's upstream
 find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test "$(git -C "$1" rev-list --count @{u}..@)" -gt 0 && echo "$1"' --
