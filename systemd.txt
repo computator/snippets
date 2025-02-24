@@ -1,0 +1,3 @@
+# auto-enable a getty when plugging in a USB Serial adapter
+# file: /etc/udev/rules.d/80-ttyUSB-auto-getty.rules
+SUBSYSTEM=="tty", ACTION=="add", KERNEL=="ttyUSB*", ENV{SYSTEMD_WANTS}+="serial-getty@%k.service"
