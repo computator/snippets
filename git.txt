@@ -8,3 +8,6 @@ find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test -z "$(git -C "$1" st
 find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test "$(git -C "$1" rev-list --count @..@{u})" -gt 0 && echo "$1"' --
 # find repos with a current branch ahead of it's upstream
 find -name .git -exec dirname {} + | xargs -n 1 sh -c 'test "$(git -C "$1" rev-list --count @{u}..@)" -gt 0 && echo "$1"' --
+
+# list files changed in both parents of an in-progress merge (usually files that have been automerged or had conflicts resolved)
+comm -12 <(git diff --merge-base MERGE_HEAD @ --name-only) <(git diff @ --name-only)
