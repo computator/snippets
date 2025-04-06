@@ -1,0 +1,2 @@
+# filter environment variable names by pattern
+awk 'END { for (n in ENVIRON) if (n ~ /PAT/) print n }' /dev/null
