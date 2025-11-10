@@ -1,0 +1,2 @@
+# gpg symmetric encryption of text as a qr code
+head -n 1 | gpg -c --batch --armor --pinentry-mode loopback --passphrase $(tr -dc '[:alnum:]' < /dev/urandom | fold -w 16 | head -n 1 | tee /dev/stderr) | qrencode -t ansi256utf8
