@@ -1,0 +1,1 @@
+alias tofu='podman run --rm -it -v .:/workdir -w /workdir -v $SSH_AUTH_SOCK:/ssh.sock -e SSH_AUTH_SOCK=/ssh.sock -e "TF_VAR_*" ghcr.io/opentofu/opentofu'
