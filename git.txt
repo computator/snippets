@@ -22,3 +22,6 @@ git checkout-index -af
 # delete all tracked files from index and working directory
 git read-tree --empty
 git clean -df -x  # remove -x to keep ignored files
+
+# switch to a commit from a day earlier than the current commit
+git switch -d $(git log -n 1 --before "$(git log -n 1 --format=%cs) - 1.day" --format=%h)
